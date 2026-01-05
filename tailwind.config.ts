@@ -57,11 +57,26 @@ export default {
           border: "hsl(var(--sidebar-border))",
           ring: "hsl(var(--sidebar-ring))",
         },
+        // Coal India specific colors
+        cil: {
+          maroon: "hsl(var(--cil-maroon))",
+          gray: "hsl(var(--cil-gray))",
+          "dark-gray": "hsl(var(--cil-dark-gray))",
+          "light-gray": "hsl(var(--cil-light-gray))",
+          olive: "hsl(var(--cil-olive))",
+          green: "hsl(var(--cil-green))",
+          pink: "hsl(var(--cil-pink))",
+          "red-border": "hsl(var(--cil-red-border))",
+          footer: "hsl(var(--cil-footer))",
+        },
       },
       borderRadius: {
         lg: "var(--radius)",
         md: "calc(var(--radius) - 2px)",
         sm: "calc(var(--radius) - 4px)",
+      },
+      fontFamily: {
+        hindi: ["'Noto Sans Devanagari'", "Arial", "sans-serif"],
       },
       keyframes: {
         "accordion-down": {
