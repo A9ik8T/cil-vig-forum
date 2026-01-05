@@ -1,12 +1,21 @@
-// Update this page (the content is just a fallback if you fail to update the page)
+import Header from "@/components/Header";
+import SectionTitle from "@/components/SectionTitle";
+import ComplaintGuidelines from "@/components/ComplaintGuidelines";
+import ActionButtons from "@/components/ActionButtons";
+import Footer from "@/components/Footer";
 
 const Index = () => {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background">
-      <div className="text-center">
-        <h1 className="mb-4 text-4xl font-bold">Welcome to Your Blank App</h1>
-        <p className="text-xl text-muted-foreground">Start building your amazing project here!</p>
-      </div>
+    <div className="min-h-screen flex flex-col bg-background">
+      <Header />
+      <main className="flex-1">
+        <SectionTitle title="LODGING COMPLAINTS" />
+        <ComplaintGuidelines />
+        <ActionButtons />
+        {/* Gray spacing area */}
+        <div className="h-32" style={{ backgroundColor: '#d1d1d1' }} />
+      </main>
+      <Footer />
     </div>
   );
 };
