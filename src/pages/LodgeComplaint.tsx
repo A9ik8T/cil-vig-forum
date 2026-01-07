@@ -1,9 +1,10 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { RefreshCw } from "lucide-react";
+import { RefreshCw, Loader2 } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { useToast } from "@/hooks/use-toast";
+import { API_ENDPOINTS, apiCall } from "@/config/api";
 
 const generateCaptcha = () => Math.floor(1000 + Math.random() * 9000).toString();
 
@@ -12,7 +13,21 @@ const LodgeComplaint = () => {
   const [captchaInput, setCaptchaInput] = useState("");
   const [files, setFiles] = useState<File[]>([]);
   const [complaintDetails, setComplaintDetails] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [formData, setFormData] = useState({
+    referenceNo: "",
+    company: "",
+    fullName: "",
+    mobile: "",
+    email: "",
+    address: "",
+  });
   const { toast } = useToast();
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
+  };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
@@ -25,7 +40,7 @@ const LodgeComplaint = () => {
     setCaptchaInput("");
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     if (!complaintDetails.trim()) {
@@ -46,17 +61,59 @@ const LodgeComplaint = () => {
       refreshCaptcha();
       return;
     }
-    
-    toast({
-      title: "Success",
-      description: "Your complaint has been submitted successfully!",
-    });
-    
-    // Reset form
-    setCaptchaInput("");
-    setComplaintDetails("");
-    setFiles([]);
-    refreshCaptcha();
+
+    setIsSubmitting(true);
+
+    try {
+      const complaintData = {
+        ...formData,
+        complaintDetails,
+        filesCount: files.length,
+      };
+
+      const response = await apiCall(API_ENDPOINTS.submitComplaint, {
+        method: 'POST',
+        body: JSON.stringify(complaintData),
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        toast({
+          title: "Success",
+          description: `Your complaint has been submitted! Reference: ${data.referenceId || 'N/A'}`,
+        });
+        
+        // Reset form
+        setCaptchaInput("");
+        setComplaintDetails("");
+        setFiles([]);
+        setFormData({
+          referenceNo: "",
+          company: "",
+          fullName: "",
+          mobile: "",
+          email: "",
+          address: "",
+        });
+        refreshCaptcha();
+      } else {
+        toast({
+          title: "Submission Failed",
+          description: data.message || "Failed to submit complaint. Please try again.",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Unable to connect to server. Please try again.",
+        variant: "destructive",
+      });
+      console.error("Complaint submission error:", error);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -90,7 +147,10 @@ const LodgeComplaint = () => {
                   Reference No <span className="text-gray-500">(optional)</span> :
                 </label>
                 <input 
-                  type="text" 
+                  type="text"
+                  name="referenceNo"
+                  value={formData.referenceNo}
+                  onChange={handleInputChange}
                   placeholder="Enter Reference no"
                   className="w-full border px-2 py-1.5 text-xs"
                   style={{ borderColor: '#ccc', backgroundColor: '#fff' }}
@@ -102,7 +162,10 @@ const LodgeComplaint = () => {
                 <label className="block text-xs mb-1" style={{ color: '#333' }}>
                   Select Companies <span className="text-gray-500">(optional)</span>:
                 </label>
-                <select 
+                <select
+                  name="company"
+                  value={formData.company}
+                  onChange={handleInputChange}
                   className="w-full border px-2 py-1.5 text-xs appearance-none"
                   style={{ borderColor: '#ccc', backgroundColor: '#fff' }}
                 >
@@ -124,7 +187,10 @@ const LodgeComplaint = () => {
                   Your Full Name <span className="text-gray-500">(optional)</span> :
                 </label>
                 <input 
-                  type="text" 
+                  type="text"
+                  name="fullName"
+                  value={formData.fullName}
+                  onChange={handleInputChange}
                   placeholder="Your Full Name"
                   className="w-full border px-2 py-1.5 text-xs"
                   style={{ borderColor: '#ccc', backgroundColor: '#fff' }}
@@ -137,7 +203,10 @@ const LodgeComplaint = () => {
                   Mobile Number <span className="text-gray-500">(optional)</span> :
                 </label>
                 <input 
-                  type="text" 
+                  type="text"
+                  name="mobile"
+                  value={formData.mobile}
+                  onChange={handleInputChange}
                   placeholder="Enter Mobile"
                   className="w-full border px-2 py-1.5 text-xs"
                   style={{ borderColor: '#ccc', backgroundColor: '#fff' }}
@@ -150,7 +219,10 @@ const LodgeComplaint = () => {
                   Email-Id <span className="text-gray-500">(optional)</span>:
                 </label>
                 <input 
-                  type="email" 
+                  type="email"
+                  name="email"
+                  value={formData.email}
+                  onChange={handleInputChange}
                   placeholder="Enter Email"
                   className="w-full border px-2 py-1.5 text-xs"
                   style={{ borderColor: '#ccc', backgroundColor: '#fff' }}
@@ -162,7 +234,10 @@ const LodgeComplaint = () => {
                 <label className="block text-xs mb-1" style={{ color: '#333' }}>
                   Your Address <span className="text-gray-500">(optional)</span>:
                 </label>
-                <textarea 
+                <textarea
+                  name="address"
+                  value={formData.address}
+                  onChange={handleInputChange}
                   className="w-full border px-2 py-1.5 text-xs resize-vertical"
                   style={{ borderColor: '#ccc', backgroundColor: '#fff', minHeight: '60px' }}
                   rows={3}
@@ -267,10 +342,12 @@ const LodgeComplaint = () => {
             <div>
               <button 
                 type="submit"
-                className="px-8 py-2 text-xs text-white"
+                disabled={isSubmitting}
+                className="px-8 py-2 text-xs text-white flex items-center gap-2 disabled:opacity-50"
                 style={{ backgroundColor: '#5a8a5a' }}
               >
-                Submit
+                {isSubmitting && <Loader2 className="animate-spin" size={14} />}
+                {isSubmitting ? "Submitting..." : "Submit"}
               </button>
             </div>
           </div>
