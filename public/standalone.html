@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CIL - Lodging Complaints</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            font-size: 14px;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            background-color: #f5f5f5;
+        }
+        .hindi-text {
+            font-family: 'Noto Sans Devanagari', sans-serif;
+        }
+        
+        /* Header */
+        header {
+            background-color: #f5f5f5;
+            padding: 12px 20px;
+        }
+        .header-content {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .logo {
+            width: 56px;
+            height: 56px;
+        }
+        .header-text {
+            display: flex;
+            flex-direction: column;
+            line-height: 1.3;
+        }
+        .header-text .hindi {
+            font-size: 12px;
+            color: #333;
+        }
+        .header-text .english-main {
+            font-size: 16px;
+            font-weight: bold;
+            color: #333;
+        }
+        .header-text .small-text {
+            font-size: 10px;
+            color: #333;
+        }
+        .header-text .maharatna {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .header-text .maharatna .bold {
+            font-weight: 600;
+        }
+        
+        /* Section Title */
+        .section-title {
+            background-color: #e0e0e0;
+            padding: 8px 16px;
+            border-bottom: 3px solid #b32d00;
+        }
+        .section-title h1 {
+            font-size: 14px;
+            font-weight: normal;
+            color: #b32d00;
+        }
+        
+        /* Guidelines */
+        .guidelines {
+            background-color: #d1d1d1;
+            padding: 16px 24px;
+        }
+        .guidelines p {
+            font-size: 12px;
+            color: #333;
+            margin-bottom: 16px;
+        }
+        .guidelines ul {
+            margin-left: 24px;
+        }
+        .guidelines li {
+            font-size: 12px;
+            color: #333;
+            line-height: 1.6;
+            margin-bottom: 8px;
+        }
+        
+        /* Action Buttons */
+        .action-section {
+            background-color: #d1d1d1;
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 32px;
+        }
+        .main-buttons {
+            display: flex;
+            gap: 16px;
+            align-items: center;
+            justify-content: center;
+        }
+        .btn-lodge {
+            background-color: #b32d00;
+            color: white;
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            font-size: 13px;
+            cursor: pointer;
+            text-decoration: none;
+        }
+        .btn-lodge:hover {
+            background-color: #8b2200;
+        }
+        .btn-status {
+            background-color: #1a4d1a;
+            color: white;
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            font-size: 13px;
+            cursor: pointer;
+        }
+        .btn-status:hover {
+            background-color: #133d13;
+        }
+        .login-section {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .btn-login {
+            background-color: #8b0000;
+            color: white;
+            padding: 4px 16px;
+            border: none;
+            border-radius: 4px;
+            font-size: 12px;
+            cursor: pointer;
+        }
+        .btn-login:hover {
+            background-color: #6b0000;
+        }
+        .login-note {
+            font-size: 14px;
+            color: #333;
+        }
+        
+        /* Spacing */
+        .spacing {
+            height: 128px;
+            background-color: #d1d1d1;
+            flex: 1;
+        }
+        
+        /* Footer */
+        footer {
+            height: 32px;
+            background-color: #404040;
+            margin-top: auto;
+        }
+        
+        /* Modal */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        .modal {
+            background: white;
+            padding: 24px;
+            border-radius: 8px;
+            width: 90%;
+            max-width: 400px;
+        }
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .modal-title {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 18px;
+            font-weight: bold;
+        }
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #666;
+        }
+        .form-group {
+            margin-bottom: 16px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 4px;
+            font-size: 14px;
+            color: #333;
+        }
+        .form-group input {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        .submit-btn {
+            width: 100%;
+            background-color: #b32d00;
+            color: white;
+            padding: 10px;
+            border: none;
+            border-radius: 4px;
+            font-size: 14px;
+            cursor: pointer;
+        }
+        .submit-btn:hover {
+            background-color: #8b2200;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header>
+        <div class="header-content">
+            <svg class="logo" viewBox="0 0 100 100">
+                <circle cx="50" cy="50" r="45" fill="#1a4d1a" stroke="#ffd700" stroke-width="3"/>
+                <text x="50" y="45" text-anchor="middle" fill="white" font-size="12" font-weight="bold">COAL</text>
+                <text x="50" y="60" text-anchor="middle" fill="white" font-size="12" font-weight="bold">INDIA</text>
+                <text x="50" y="75" text-anchor="middle" fill="#ffd700" font-size="8">LIMITED</text>
+            </svg>
+            <div class="header-text">
+                <span class="hindi hindi-text">कोल इण्डिया लिमिटेड</span>
+                <span class="english-main">Coal India Limited</span>
+                <span class="small-text hindi-text">भारत सरकार का उपक्रम</span>
+                <span class="small-text">A Government of India Undertaking</span>
+                <div class="maharatna">
+                    <span class="small-text hindi-text">एक महारत्न कंपनी</span>
+                    <span class="small-text bold">A Maharatna Company</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Section Title -->
+    <div class="section-title">
+        <h1>LODGING COMPLAINTS</h1>
+    </div>
+
+    <!-- Guidelines -->
+    <div class="guidelines">
+        <p>Complaints regarding irregularities in CIL and it subsidiaries corruption and bungling of money involvement of Employees of CIL and it subsidiaries</p>
+        <ul>
+            <li>Complaint can be lodged only against employees belonging to the Coal India Limited, Kolkata and its subsidiaries.</li>
+            <li>While complaints against tenders may be investigated, it could not interfere in the tender process.</li>
+            <li>Complaints must be brief and contain factual details, verifiable facts and related matters. They should not be vague or contain sweeping general allegations.</li>
+            <li>The complaint having vigilance angle shall only be examined. The vigilance angle comprises of misuse of official position, demand and acceptance of illegal gratification, cases of misappropriation / forgery or cheating, gross and willful negligence, blatant violation of laid down systems and procedures, reckless exercise of discretion, delay in processing the cases, etc.</li>
+            <li>The complaint having other than vigilance angle will be either be filed or will be referred to the concerned department of CIL and it subsidiaries.</li>
+        </ul>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="action-section">
+        <div class="main-buttons">
+            <a href="#lodge" class="btn-lodge" onclick="alert('Lodge Complaint form would open here')">Lodge Complaint</a>
+            <button class="btn-status" onclick="alert('Check status functionality')">Check Your Complaint Status</button>
+        </div>
+        <div class="login-section">
+            <button class="btn-login" onclick="openModal()">LOGIN</button>
+            <span class="login-note">(for internal use)</span>
+        </div>
+    </div>
+
+    <!-- Spacing -->
+    <div class="spacing"></div>
+
+    <!-- Footer -->
+    <footer></footer>
+
+    <!-- Login Modal -->
+    <div class="modal-overlay" id="loginModal">
+        <div class="modal">
+            <div class="modal-header">
+                <div class="modal-title">
+                    <span>🔒</span>
+                    <span>Login</span>
+                </div>
+                <button class="close-btn" onclick="closeModal()">&times;</button>
+            </div>
+            <form onsubmit="handleLogin(event)">
+                <div class="form-group">
+                    <label for="username">Username</label>
+                    <input type="text" id="username" placeholder="Enter username" required>
+                </div>
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" placeholder="Enter password" required>
+                </div>
+                <button type="submit" class="submit-btn">Login</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        function openModal() {
+            document.getElementById('loginModal').style.display = 'flex';
+        }
+        function closeModal() {
+            document.getElementById('loginModal').style.display = 'none';
+        }
+        function handleLogin(e) {
+            e.preventDefault();
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            alert('Login attempt with: ' + username);
+            // Add your API call here
+        }
+        // Close modal on outside click
+        document.getElementById('loginModal').addEventListener('click', function(e) {
+            if (e.target === this) closeModal();
+        });
+    </script>
+</body>
+</html>
