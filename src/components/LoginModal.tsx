@@ -1,7 +1,5 @@
 import { useState } from "react";
-import { X, Lock, User, Eye, Loader2 } from "lucide-react";
-import { API_ENDPOINTS, apiCall } from "@/config/api";
-import { useToast } from "@/hooks/use-toast";
+import { X, Lock, User, Eye } from "lucide-react";
 
 interface LoginModalProps {
   isOpen: boolean;
@@ -11,59 +9,6 @@ interface LoginModalProps {
 const LoginModal = ({ isOpen, onClose }: LoginModalProps) => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
-  const { toast } = useToast();
-
-  const handleLogin = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    if (!username.trim() || !password.trim()) {
-      toast({
-        title: "Error",
-        description: "Please enter both username and password.",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    setIsLoading(true);
-    
-    try {
-      const response = await apiCall(API_ENDPOINTS.login, {
-        method: 'POST',
-        body: JSON.stringify({ username, password }),
-      });
-      
-      const data = await response.json();
-      
-      if (data.success) {
-        toast({
-          title: "Success",
-          description: "Login successful!",
-        });
-        // Store user session if needed
-        localStorage.setItem('user', JSON.stringify(data.user));
-        onClose();
-        setUsername("");
-        setPassword("");
-      } else {
-        toast({
-          title: "Login Failed",
-          description: data.message || "Invalid username or password.",
-          variant: "destructive",
-        });
-      }
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "Unable to connect to server. Please try again.",
-        variant: "destructive",
-      });
-      console.error("Login error:", error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
 
   if (!isOpen) return null;
 
@@ -132,17 +77,11 @@ const LoginModal = ({ isOpen, onClose }: LoginModalProps) => {
           {/* Login button */}
           <button 
             type="submit"
-            onClick={handleLogin}
-            disabled={isLoading}
-            className="w-full py-2 text-sm flex items-center justify-center gap-2 disabled:opacity-50"
+            className="w-full py-2 text-sm flex items-center justify-center gap-2"
             style={{ backgroundColor: '#d0d0d0', color: '#333' }}
           >
-            {isLoading ? (
-              <Loader2 className="animate-spin" size={16} />
-            ) : (
-              <span style={{ fontSize: '16px' }}>⏻</span>
-            )}
-            {isLoading ? "Logging in..." : "Login"}
+            <span style={{ fontSize: '16px' }}>⏻</span>
+            Login
           </button>
         </div>
       </div>
