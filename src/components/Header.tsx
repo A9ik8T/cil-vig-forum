@@ -1,13 +1,13 @@
-import coalIndiaLogo from "@/assets/coal-india-logo.svg";
-
 const Header = () => {
   return (
     <header className="bg-background py-3 px-5">
       <div className="flex items-center gap-3">
         <img 
-          src={coalIndiaLogo} 
+          src="/images/coal-india-logo.png" 
           alt="Coal India Limited Logo" 
           className="w-14 h-14"
+          loading="eager"
+          decoding="async"
         />
         <div className="flex flex-col leading-tight">
           <span className="font-hindi text-xs" style={{ color: '#333' }}>कोल इण्डिया लिमिटेड</span>

@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { X, Lock, User, Eye } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 
 interface LoginModalProps {
   isOpen: boolean;
@@ -9,8 +10,36 @@ interface LoginModalProps {
 const LoginModal = ({ isOpen, onClose }: LoginModalProps) => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const { toast } = useToast();
 
   if (!isOpen) return null;
+
+  const handleLogin = (e: React.FormEvent) => {
+    e.preventDefault();
+    const sanitizedUser = username.trim();
+    const sanitizedPass = password.trim();
+    if (!sanitizedUser || !sanitizedPass) {
+      toast({
+        title: "Error",
+        description: "Please enter both username and password.",
+        variant: "destructive",
+      });
+      return;
+    }
+    if (sanitizedUser.length > 100 || sanitizedPass.length > 100) {
+      toast({
+        title: "Error",
+        description: "Input is too long.",
+        variant: "destructive",
+      });
+      return;
+    }
+    toast({
+      title: "Login",
+      description: "Invalid credentials. Please try again.",
+      variant: "destructive",
+    });
+  };
 
   return (
     <div 
@@ -41,7 +70,7 @@ const LoginModal = ({ isOpen, onClose }: LoginModalProps) => {
         </button>
 
         {/* Form content */}
-        <div className="p-6">
+        <form onSubmit={handleLogin} className="p-6">
           {/* Username field */}
           <div className="mb-4">
             <label className="flex items-center gap-1 text-sm mb-2" style={{ color: '#333' }}>
@@ -55,6 +84,7 @@ const LoginModal = ({ isOpen, onClose }: LoginModalProps) => {
               onChange={(e) => setUsername(e.target.value)}
               className="w-full border px-3 py-2 text-sm"
               style={{ borderColor: '#ddd', backgroundColor: '#fff' }}
+              maxLength={100}
             />
           </div>
 
@@ -71,6 +101,7 @@ const LoginModal = ({ isOpen, onClose }: LoginModalProps) => {
               onChange={(e) => setPassword(e.target.value)}
               className="w-full border px-3 py-2 text-sm"
               style={{ borderColor: '#ddd', backgroundColor: '#fff' }}
+              maxLength={100}
             />
           </div>
 
@@ -83,7 +114,7 @@ const LoginModal = ({ isOpen, onClose }: LoginModalProps) => {
             <span style={{ fontSize: '16px' }}>⏻</span>
             Login
           </button>
-        </div>
+        </form>
       </div>
     </div>
   );
