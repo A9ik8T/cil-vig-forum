@@ -14,7 +14,78 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      complaints: {
+        Row: {
+          address: string | null
+          company: string | null
+          complaint_details: string
+          complaint_id: string
+          created_at: string
+          email: string | null
+          full_name: string | null
+          id: string
+          mobile: string | null
+          reference_no: string | null
+          status: string
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          address?: string | null
+          company?: string | null
+          complaint_details: string
+          complaint_id?: string
+          created_at?: string
+          email?: string | null
+          full_name?: string | null
+          id?: string
+          mobile?: string | null
+          reference_no?: string | null
+          status?: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          address?: string | null
+          company?: string | null
+          complaint_details?: string
+          complaint_id?: string
+          created_at?: string
+          email?: string | null
+          full_name?: string | null
+          id?: string
+          mobile?: string | null
+          reference_no?: string | null
+          status?: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          created_at: string
+          email: string | null
+          full_name: string | null
+          id: string
+          mobile: string | null
+        }
+        Insert: {
+          created_at?: string
+          email?: string | null
+          full_name?: string | null
+          id: string
+          mobile?: string | null
+        }
+        Update: {
+          created_at?: string
+          email?: string | null
+          full_name?: string | null
+          id?: string
+          mobile?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
