@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { X } from "lucide-react";
+import { X, Search } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -8,9 +8,16 @@ interface StatusCheckModalProps {
   onClose: () => void;
 }
 
+const statusColor = (status: string) => {
+  if (status === "Resolved")    return "#2e7d32";
+  if (status === "Rejected")    return "#c62828";
+  if (status === "In Progress") return "#1565c0";
+  return "#b8860b"; // Pending
+};
+
 const StatusCheckModal = ({ isOpen, onClose }: StatusCheckModalProps) => {
   const [searchInput, setSearchInput] = useState("");
-  const [result, setResult] = useState<any>(null);
+  const [result, setResult] = useState<any[] | null>(null);
   const [searched, setSearched] = useState(false);
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
@@ -20,7 +27,11 @@ const StatusCheckModal = ({ isOpen, onClose }: StatusCheckModalProps) => {
   const handleCheck = async () => {
     const sanitized = searchInput.trim();
     if (!sanitized) {
-      toast({ title: "Error", description: "Please enter a Complaint ID, Mobile No, Email Id, or Name.", variant: "destructive" });
+      toast({
+        title: "Error",
+        description: "Please enter a Complaint ID, Mobile No, Email Id, or Name.",
+        variant: "destructive",
+      });
       return;
     }
 
@@ -32,18 +43,20 @@ const StatusCheckModal = ({ isOpen, onClose }: StatusCheckModalProps) => {
       const { data, error } = await supabase
         .from("complaints")
         .select("*")
-        .or(`complaint_id.eq.${sanitized},mobile.eq.${sanitized},email.eq.${sanitized},full_name.ilike.%${sanitized}%`)
-        .limit(5);
+        .or(
+          `complaint_id.eq.${sanitized},mobile.eq.${sanitized},email.eq.${sanitized},full_name.ilike.%${sanitized}%`
+        )
+        .order("created_at", { ascending: false })
+        .limit(10);
 
       if (error) throw error;
-
-      if (data && data.length > 0) {
-        setResult(data);
-      } else {
-        setResult(null);
-      }
+      setResult(data && data.length > 0 ? data : null);
     } catch (err: any) {
-      toast({ title: "Error", description: err.message || "Failed to search.", variant: "destructive" });
+      toast({
+        title: "Error",
+        description: err.message || "Failed to search. Please try again.",
+        variant: "destructive",
+      });
     } finally {
       setLoading(false);
     }
@@ -57,46 +70,113 @@ const StatusCheckModal = ({ isOpen, onClose }: StatusCheckModalProps) => {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-start justify-center pt-16"
-      style={{ backgroundColor: "rgba(0, 0, 0, 0.5)" }} onClick={handleClose}>
-      <div className="relative w-full max-w-xl shadow-lg" style={{ backgroundColor: "#fff" }}
-        onClick={(e) => e.stopPropagation()}>
-        <div className="py-4 text-center" style={{ background: "linear-gradient(to bottom, #a04040, #803030)" }}>
+    <div
+      className="fixed inset-0 z-50 flex items-start justify-center pt-12 px-4"
+      style={{ backgroundColor: "rgba(0, 0, 0, 0.5)" }}
+      onClick={handleClose}
+    >
+      <div
+        className="relative w-full max-w-xl shadow-lg"
+        style={{ backgroundColor: "#fff", maxHeight: "85vh", overflowY: "auto" }}
+        onClick={(e) => e.stopPropagation()}
+      >
+        {/* Header */}
+        <div
+          className="py-4 text-center sticky top-0 z-10"
+          style={{ background: "linear-gradient(to bottom, #a04040, #803030)" }}
+        >
           <span className="text-white text-2xl font-normal">Status Check</span>
         </div>
 
-        <button onClick={handleClose} className="absolute top-3 right-3 text-gray-300 hover:text-white" aria-label="Close">
+        <button
+          onClick={handleClose}
+          className="absolute top-3 right-3 text-gray-300 hover:text-white z-20"
+          aria-label="Close"
+        >
           <X size={20} />
         </button>
 
         <div className="p-8">
           <label className="block text-sm font-bold mb-3" style={{ color: "#333" }}>
-            Enter Your Complaint ID/Mobile No/Email Id/Name :
+            Enter Your Complaint ID / Mobile No / Email Id / Name :
           </label>
-          <input type="text" value={searchInput} onChange={(e) => setSearchInput(e.target.value)}
-            className="w-full border px-3 py-2 text-sm mb-4" style={{ borderColor: "#ccc", backgroundColor: "#fff" }}
-            maxLength={200} onKeyDown={(e) => e.key === "Enter" && handleCheck()} />
-          <button type="button" onClick={handleCheck} disabled={loading}
-            className="px-6 py-2 text-sm border" style={{ backgroundColor: "#e8e8e8", borderColor: "#bbb", color: "#333" }}>
-            {loading ? "Checking..." : "Check"}
-          </button>
 
+          <div className="flex gap-2 mb-4">
+            <input
+              type="text"
+              value={searchInput}
+              onChange={(e) => setSearchInput(e.target.value)}
+              placeholder="e.g. CIL-100001 or your mobile number"
+              className="flex-1 border px-3 py-2 text-sm"
+              style={{ borderColor: "#ccc", backgroundColor: "#fff" }}
+              onKeyDown={(e) => e.key === "Enter" && handleCheck()}
+            />
+            <button
+              type="button"
+              onClick={handleCheck}
+              disabled={loading}
+              className="px-4 py-2 text-sm border flex items-center gap-1 disabled:opacity-50"
+              style={{ backgroundColor: "#e8e8e8", borderColor: "#bbb", color: "#333" }}
+            >
+              <Search size={14} />
+              {loading ? "..." : "Check"}
+            </button>
+          </div>
+
+          {/* Not found */}
           {searched && !loading && !result && (
-            <div className="mt-4 p-3 border text-sm" style={{ backgroundColor: "#fff3cd", borderColor: "#ffc107", color: "#856404" }}>
-              No complaint found with the given details. Please check and try again.
+            <div
+              className="p-4 border text-sm"
+              style={{ backgroundColor: "#fff3cd", borderColor: "#ffc107", color: "#856404" }}
+            >
+              <strong>No complaint found.</strong><br />
+              No records match your search. Please check and try again. If you
+              haven't lodged a complaint yet, click{" "}
+              <strong>"Lodge Complaint"</strong>.
             </div>
           )}
 
+          {/* Results — uses company_name column */}
           {result && result.length > 0 && (
-            <div className="mt-4 space-y-3">
+            <div className="space-y-3 mt-2">
+              <p className="text-xs" style={{ color: "#666" }}>
+                Found {result.length} complaint{result.length > 1 ? "s" : ""}:
+              </p>
               {result.map((c: any) => (
-                <div key={c.id} className="border p-3 text-xs" style={{ borderColor: "#ccc" }}>
-                  <p><strong>Complaint ID:</strong> {c.complaint_id}</p>
-                  <p><strong>Status:</strong> <span className="font-semibold" style={{ color: c.status === 'Resolved' ? 'green' : c.status === 'Rejected' ? 'red' : '#b8860b' }}>{c.status}</span></p>
-                  <p><strong>Name:</strong> {c.full_name || "N/A"}</p>
-                  <p><strong>Company:</strong> {c.company || "N/A"}</p>
-                  <p><strong>Filed on:</strong> {new Date(c.created_at).toLocaleDateString()}</p>
-                  <p><strong>Details:</strong> {c.complaint_details.substring(0, 100)}{c.complaint_details.length > 100 ? "..." : ""}</p>
+                <div
+                  key={c.id}
+                  className="border p-4 text-xs space-y-1"
+                  style={{ borderColor: "#ccc", borderLeft: "4px solid #a04040" }}
+                >
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="font-bold text-sm font-mono" style={{ color: "#a04040" }}>
+                      {c.complaint_id}
+                    </span>
+                    <span
+                      className="px-2 py-0.5 text-white text-xs font-semibold"
+                      style={{ backgroundColor: statusColor(c.status) }}
+                    >
+                      {c.status}
+                    </span>
+                  </div>
+
+                  {c.full_name    && <p><strong>Name:</strong> {c.full_name}</p>}
+                  {c.company_name && <p><strong>Company:</strong> {c.company_name}</p>}
+                  {c.mobile       && <p><strong>Mobile:</strong> {c.mobile}</p>}
+                  {c.reference_no && <p><strong>Ref No:</strong> {c.reference_no}</p>}
+
+                  <p>
+                    <strong>Filed on:</strong>{" "}
+                    {new Date(c.created_at).toLocaleDateString("en-IN", {
+                      day: "2-digit", month: "short", year: "numeric",
+                    })}
+                  </p>
+                  <p>
+                    <strong>Complaint:</strong>{" "}
+                    {c.complaint_details.length > 120
+                      ? c.complaint_details.substring(0, 120) + "..."
+                      : c.complaint_details}
+                  </p>
                 </div>
               ))}
             </div>
